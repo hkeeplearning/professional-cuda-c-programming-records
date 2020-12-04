@@ -54,7 +54,7 @@ $$
 
 ## 代码
 
-[chapter01](../sources/chapter01)
+[chapter01](../../sources/chapter01)
 
 ## 习题
 
