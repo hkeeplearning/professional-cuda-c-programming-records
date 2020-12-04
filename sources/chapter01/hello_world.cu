@@ -3,7 +3,7 @@
 
 __global__ void HelloWorldGpu()
 {
-    printf("Hello world from GPU!\n");
+    printf("Hello world from GPU thread %d!\n", threadIdx.x);
 }
 
 extern "C" void HelloWorld()
