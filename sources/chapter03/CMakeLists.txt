@@ -14,3 +14,5 @@ add_executable(chapter03
 )
 
 target_link_libraries(chapter03 cudart)
+
+set_property(TARGET chapter03 PROPERTY CUDA_ARCHITECTURES 30 72)
