@@ -1,10 +1,13 @@
+#include "sum_arrays.h"
+
 #include <stdio.h>
 
-extern "C" void HelloWorld();
-
-int main()
+int main(int argc, char *argv[])
 {
-    printf("Hello world from CPU!\n");
-    HelloWorld();
+    MainCheckDimension(argc, argv);
+    MainDefineGridBlock(argc, argv);
+    MainSumArraysOnHost(argc, argv);
+    MainSumArraysOnDevice(argc, argv);
+    
     return 0;
 }

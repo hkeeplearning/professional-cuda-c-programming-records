@@ -1,16 +1,13 @@
 cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
 project(chapter02 LANGUAGES CXX CUDA)
 
-include_directories(
-    ${CMAKE_CUDA_TOOLKIT_INCLUDED_DIRECTORIES}
-)
-
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+pccp_module_impl()
 
 add_executable(chapter02
     main.cpp
-    hello_world.cu
+    sum_arrays.h
+    sum_arrays.cu
+    sum_arrays.cpp
 )
 
 target_link_libraries(chapter02 cudart)
