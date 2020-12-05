@@ -8,6 +8,7 @@ int main(int argc, char *argv[])
     MainDefineGridBlock(argc, argv);
     MainSumArraysOnHost(argc, argv);
     MainSumArraysOnDevice(argc, argv);
+    MainSumArraysOnDeviceTimer(argc, argv);
     
     return 0;
 }

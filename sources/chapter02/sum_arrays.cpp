@@ -1,5 +1,7 @@
 #include "sum_arrays.h"
 
+#include "pccp_common.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -129,6 +131,53 @@ int MainSumArraysOnDevice(int argc, char *argv[])
     cudaMemcpy(d_B, h_B, bytes, cudaMemcpyHostToDevice);
 
     dim3 block(kElementNumber);
+    dim3 grid((kElementNumber + block.x - 1) / block.x);
+    SumArraysOnDevice(d_A, d_B, d_C, kElementNumber, block, grid);
+    printf("Execution configuration <<<%d, %d>>>\n", grid.x, block.x);
+
+    cudaMemcpy(h_C_d_ref, d_C, bytes, cudaMemcpyDeviceToHost);
+
+    SumArraysOnHost(h_A, h_B, h_C_h_ref, kElementNumber);
+
+    CheckResult(h_C_h_ref, h_C_d_ref, kElementNumber);
+
+    cudaFree(d_A);
+    cudaFree(d_B);
+    cudaFree(d_C);
+
+    free(h_A);
+    free(h_B);
+    free(h_C_h_ref);
+    free(h_C_d_ref);
+
+    return 0;
+}
+
+int MainSumArraysOnDeviceTimer(int argc, char* argv[])
+{
+    const int kElementNumber = 1<<24;
+    size_t bytes = kElementNumber * sizeof(float);
+
+    float* h_A = (float*)malloc(bytes);
+    float* h_B = (float*)malloc(bytes);
+    float* h_C_h_ref = (float*)malloc(bytes);
+    float* h_C_d_ref = (float*)malloc(bytes);
+
+    InitialData(h_A, kElementNumber);
+    InitialData(h_B, kElementNumber);
+
+    memset(h_C_h_ref, 0, bytes);
+    memset(h_C_d_ref, 0, bytes);
+
+    float *d_A, *d_B, *d_C;
+    cudaMalloc((float**)(&d_A), bytes);
+    cudaMalloc((float**)(&d_B), bytes);
+    cudaMalloc((float**)(&d_C), bytes);
+
+    cudaMemcpy(d_A, h_A, bytes, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_B, h_B, bytes, cudaMemcpyHostToDevice);
+
+    dim3 block(1024);
     dim3 grid((kElementNumber + block.x - 1) / block.x);
     SumArraysOnDevice(d_A, d_B, d_C, kElementNumber, block, grid);
     printf("Execution configuration <<<%d, %d>>>\n", grid.x, block.x);

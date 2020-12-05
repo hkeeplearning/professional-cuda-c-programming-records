@@ -8,6 +8,9 @@ add_executable(chapter02
     sum_arrays.h
     sum_arrays.cu
     sum_arrays.cpp
+    sum_matrixes.h
+    sum_matrixes.cu
+    sum_matrixes.cpp
 )
 
 target_link_libraries(chapter02 cudart)

@@ -27,5 +27,6 @@ extern "C" void SumArraysOnDevice(
     const dim3 num_threads,
     const dim3 num_blocks);
 int MainSumArraysOnDevice(int argc, char *argv[]);
+int MainSumArraysOnDeviceTimer(int argc, char* argv[]);
 
 #endif // SUM_ARRAYS_H_

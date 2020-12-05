@@ -12,7 +12,7 @@ __global__ void CheckDimensionKernel()
 
 __global__ void SumArraysOnDeviceKernel(const float *A, const float *B, float *C, int N)
 {
-    int idx = threadIdx.x;
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if(idx < N) {
         C[idx] = A[idx] + B[idx];
     }
