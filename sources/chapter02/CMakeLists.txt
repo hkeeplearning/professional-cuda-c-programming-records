@@ -5,6 +5,8 @@ pccp_module_impl()
 
 add_executable(chapter02
     main.cpp
+    sum_common.h
+    sum_common.cpp
     sum_arrays.h
     sum_arrays.cu
     sum_arrays.cpp

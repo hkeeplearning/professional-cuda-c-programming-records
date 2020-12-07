@@ -1,0 +1,7 @@
+---
+# This configuration requires clang-format version 6.0 exactly.
+BasedOnStyle: WebKit
+---
+Language: Cpp
+ColumnLimit: 100
+...
