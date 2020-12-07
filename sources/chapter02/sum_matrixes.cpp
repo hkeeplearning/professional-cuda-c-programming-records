@@ -115,47 +115,77 @@ int MainSumMatrix(int argc, char* argv[])
     cudaMemcpy(d_A, h_A, bytes, cudaMemcpyHostToDevice);
     cudaMemcpy(d_B, h_B, bytes, cudaMemcpyHostToDevice);
 
+    int count = 0;
+    PCCP_CHECK(cudaGetDeviceCount(&count));
+    if (count < 1)
+    {
+        exit(1);
+    }
+    const int deviceIdx = 0;
+    cudaDeviceProp deviceProp;
+    PCCP_CHECK(cudaGetDeviceProperties(&deviceProp, deviceIdx));
+    printf("GPU: %s", deviceProp.name);
+
     if (std::find(testCaseType.begin(), testCaseType.end(), TestCaseType::GRID_1D_BLOCK_1D)
         != testCaseType.end()) {
-        cudaMemset(d_C, 0, bytes);
-        dim3 num_threads(32);
-        dim3 num_blocks((nx + num_threads.x - 1) / num_threads.x);
-        timeWatcher.Reset();
-        SumMatrixOnGpu_1D_Grid_1D_Block(d_A, d_B, d_C, nx, ny, num_threads, num_blocks);
-        cudaDeviceSynchronize();
-        printf("SumMatrixOnGpu_1D_Grid_1D_Block elapsed time: %.4f\n",
-            timeWatcher.GetElapsedMilliSeconds());
-        cudaMemcpy(h_C_d_ref, d_C, bytes, cudaMemcpyDeviceToHost);
-        CheckResult(h_C_h_ref, h_C_d_ref, nxy);
+        std::vector<int> num_threads_list { 16, 32, 64, 128, 256, 512, 1024 };
+        for (auto iter = num_threads_list.begin(); iter != num_threads_list.end(); ++iter) {
+            cudaMemset(d_C, 0, bytes);
+            dim3 num_threads(*iter);
+            dim3 num_blocks((nx + num_threads.x - 1) / num_threads.x);
+            timeWatcher.Reset();
+            SumMatrixOnGpu_1D_Grid_1D_Block(d_A, d_B, d_C, nx, ny, num_threads, num_blocks);
+            PCCP_CHECK(cudaGetLastError());
+            PCCP_CHECK(cudaDeviceSynchronize());
+            printf(
+                "SumMatrixOnGpu_1D_Grid_1D_Block grid(%d, %d) block(%d, %d) elapsed time: %.4f\n",
+                num_blocks.x, num_blocks.y, num_threads.x, num_threads.y,
+                timeWatcher.GetElapsedMilliSeconds());
+            cudaMemcpy(h_C_d_ref, d_C, bytes, cudaMemcpyDeviceToHost);
+            CheckResult(h_C_h_ref, h_C_d_ref, nxy);
+        }
     }
 
     if (std::find(testCaseType.begin(), testCaseType.end(), TestCaseType::GRID_2D_BLOCK_1D)
         != testCaseType.end()) {
-        cudaMemset(d_C, 0, bytes);
-        dim3 num_threads(32);
-        dim3 num_blocks((nx + num_threads.x - 1) / num_threads.x, ny);
-        timeWatcher.Reset();
-        SumMatrixOnGpu_2D_Grid_1D_Block(d_A, d_B, d_C, nx, ny, num_threads, num_blocks);
-        cudaDeviceSynchronize();
-        printf("SumMatrixOnGpu_2D_Grid_1D_Block elapsed time: %.4f\n",
-            timeWatcher.GetElapsedMilliSeconds());
-        cudaMemcpy(h_C_d_ref, d_C, bytes, cudaMemcpyDeviceToHost);
-        CheckResult(h_C_h_ref, h_C_d_ref, nxy);
+        std::vector<int> num_threads_list { 16, 32, 64, 128, 256, 512, 1024 };
+        for (auto iter = num_threads_list.begin(); iter != num_threads_list.end(); ++iter)
+        {
+            cudaMemset(d_C, 0, bytes);
+            dim3 num_threads(*iter);
+            dim3 num_blocks((nx + num_threads.x - 1) / num_threads.x, ny);
+            timeWatcher.Reset();
+            SumMatrixOnGpu_2D_Grid_1D_Block(d_A, d_B, d_C, nx, ny, num_threads, num_blocks);
+            PCCP_CHECK(cudaGetLastError());
+            PCCP_CHECK(cudaDeviceSynchronize());
+            printf(
+                "SumMatrixOnGpu_2D_Grid_1D_Block grid(%d, %d) block(%d, %d) elapsed time: %.4f\n",
+                num_blocks.x, num_blocks.y, num_threads.x, num_threads.y,
+                timeWatcher.GetElapsedMilliSeconds());
+            cudaMemcpy(h_C_d_ref, d_C, bytes, cudaMemcpyDeviceToHost);
+            CheckResult(h_C_h_ref, h_C_d_ref, nxy);
+        }
     }
 
     if (std::find(testCaseType.begin(), testCaseType.end(), TestCaseType::GRID_2D_BLOCK_2D)
         != testCaseType.end()) {
-        cudaMemset(d_C, 0, bytes);
-        dim3 num_threads(32, 32);
-        dim3 num_blocks(
-            (nx + num_threads.x - 1) / num_threads.x, (ny + num_threads.y - 1) / num_threads.y);
-        timeWatcher.Reset();
-        SumMatrixOnGpu_2D_Grid_2D_Block(d_A, d_B, d_C, nx, ny, num_threads, num_blocks);
-        cudaDeviceSynchronize();
-        printf("SumMatrixOnGpu_2D_Grid_2D_Block elapsed time: %.4f\n",
-            timeWatcher.GetElapsedMilliSeconds());
-        cudaMemcpy(h_C_d_ref, d_C, bytes, cudaMemcpyDeviceToHost);
-        CheckResult(h_C_h_ref, h_C_d_ref, nxy);
+        std::vector<int> num_threads_list { 8, 16, 32 };
+        for (auto iter = num_threads_list.begin(); iter != num_threads_list.end(); ++iter) {
+            cudaMemset(d_C, 0, bytes);
+            dim3 num_threads(*iter, *iter);
+            dim3 num_blocks(
+                (nx + num_threads.x - 1) / num_threads.x, (ny + num_threads.y - 1) / num_threads.y);
+            timeWatcher.Reset();
+            SumMatrixOnGpu_2D_Grid_2D_Block(d_A, d_B, d_C, nx, ny, num_threads, num_blocks);
+            PCCP_CHECK(cudaGetLastError());
+            PCCP_CHECK(cudaDeviceSynchronize());
+            printf(
+                "SumMatrixOnGpu_2D_Grid_2D_Block grid(%d, %d) block(%d, %d) elapsed time: %.4f\n",
+                num_blocks.x, num_blocks.y, num_threads.x, num_threads.y,
+                timeWatcher.GetElapsedMilliSeconds());
+            cudaMemcpy(h_C_d_ref, d_C, bytes, cudaMemcpyDeviceToHost);
+            CheckResult(h_C_h_ref, h_C_d_ref, nxy);
+        }
     }
 
     cudaDeviceReset();
